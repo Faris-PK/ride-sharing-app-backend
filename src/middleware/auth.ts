@@ -6,14 +6,14 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
     const accessToken = req.cookies.accessToken;
 
     if (!accessToken) {
-        return res.status(HttpStatus.UNAUTHORIZED).json({ message: 'Access token required' });
+         res.status(HttpStatus.UNAUTHORIZED).json({ message: 'Access token required' });
     }
 
     try {
         const decoded = verifyAccessToken(accessToken) as unknown as { id: string; email: string };
-        req.user = decoded;
+        req.body.user = decoded;
         next();
     } catch (error) {
-        return res.status(HttpStatus.UNAUTHORIZED).json({ message: 'Invalid token' });
+         res.status(HttpStatus.UNAUTHORIZED).json({ message: 'Invalid token' });
     }
 };
