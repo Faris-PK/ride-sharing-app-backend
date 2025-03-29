@@ -6,7 +6,7 @@ const authService = new AuthService();
 
 export const signup = async (req: Request, res: Response) => { 
   try {
-    const result = await authService.signup(req.body);
+    const result = await authService.signup(req.body, res);
     res.status(HttpStatus.OK).json(result);
   } catch (error) {
     res.status(HttpStatus.SERVER_ERROR).json({ message: "Server error" });
@@ -16,9 +16,12 @@ export const signup = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
   try {
     const result = await authService.login(req.body, res);
+    console.log();
+    
     
     res.status(HttpStatus.OK).json(result);
   } catch (error) {
+    
     res.status(HttpStatus.SERVER_ERROR).json({ message: "Server error" });
   }
 };
@@ -33,6 +36,6 @@ export const refreshToken = async (req: Request, res: Response) => {
     const result = await authService.refreshToken(req.cookies.refreshToken, res);
     res.status(HttpStatus.OK).json(result);
   } catch (error) {
-    res.status(HttpStatus.UNAUTHORIZED).json({ message: "Invalid refresh token" });
+    res.status(HttpStatus.FORBIDDEN).json({ message: "Invalid refresh token" });
   }
 };

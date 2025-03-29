@@ -7,7 +7,7 @@ import { IUser } from "../models/User";
 export class AuthService {
   private userRepo = new UserRepository();
 
-  async signup(data: { name: string; email: string; password: string; phone: string; role: string }) {
+  async signup(data: { name: string; email: string; password: string; phone: string; role: string }, res : Response) {
     const { name, email, password, phone, role } = data;
     
     
@@ -20,12 +20,19 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user: IUser = await this.userRepo.createUser({
+    
       name,
       email,
       password: hashedPassword,
-      phone,
+      phone,   
       role,
     });
+
+    const accessToken = generateAccessToken({ id: user.id, role: user.role });
+    const refreshToken = generateRefreshToken({ id: user.id, role: user.role });
+
+    res.cookie("accessToken", accessToken, { httpOnly: true, maxAge: 15 * 60 * 1000 });
+    res.cookie("refreshToken", refreshToken, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
 
     return { message: "Signup successful", user: { id: user._id, role: user.role } };
   }
@@ -50,7 +57,7 @@ export class AuthService {
     res.clearCookie("accessToken");
     res.clearCookie("refreshToken");
   }
-
+    
   async refreshToken(refreshToken: string, res: Response) {
     if (!refreshToken) {
       throw new Error("No refresh token provided");

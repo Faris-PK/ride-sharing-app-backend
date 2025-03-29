@@ -1,5 +1,4 @@
 import { RideRepository } from '../repositories/rideRepository';
-import { HttpStatus } from '../utils/enums';
 import { Client } from '@googlemaps/google-maps-services-js';
 
 const mapsClient = new Client({});
@@ -9,6 +8,8 @@ export class RideService {
 
   async createRide(data: { pickup: string; dropoff: string; passengerId: string }) {
     const { pickup, dropoff, passengerId } = data;
+   
+    
     const ride = await this.rideRepo.createRide({
       passengerId,
       pickup,
@@ -53,7 +54,7 @@ export class RideService {
 
   async acceptRide(rideId: string, driverId: string) {
     const ride = await this.rideRepo.findById(rideId);
-    if (!ride) {
+    if (!ride || ride.status !== 'Pending') {
       throw new Error('Ride not available');
     }
 
@@ -78,6 +79,4 @@ export class RideService {
     await this.rideRepo.save(ride);
     return ride;
   }
-
-  
 }
