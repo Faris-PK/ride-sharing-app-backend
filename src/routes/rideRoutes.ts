@@ -1,5 +1,5 @@
 import express, { Router } from 'express';
-import { createRide, getMyRides, getRideRoute, getPendingRides, acceptRide, getDriverRides, updateRideStatus, updateDriverLocation } from '../controllers/rideController';
+import { createRide, getMyRides, getRideRoute, getPendingRides, acceptRide, getDriverRides, updateRideStatus } from '../controllers/rideController';
 import { authenticateToken } from '../middleware/auth';
 
 const router: Router = express.Router();
@@ -11,7 +11,6 @@ router.get('/pending', authenticateToken, getPendingRides);
 router.get('/driver-rides', authenticateToken, getDriverRides);
 router.post('/accept/:rideId', authenticateToken, acceptRide);
 router.put('/status/:rideId', authenticateToken, updateRideStatus);
-router.put('/location/:rideId', authenticateToken, updateDriverLocation);
 
 
 export default router;

@@ -8,8 +8,6 @@ export class RideService {
 
   async createRide(data: { pickup: string; dropoff: string; passengerId: string }) {
     const { pickup, dropoff, passengerId } = data;
-   
-    
     const ride = await this.rideRepo.createRide({
       passengerId,
       pickup,
@@ -80,12 +78,5 @@ export class RideService {
     return ride;
   }
 
-  async updateDriverLocation(rideId: string, driverId: string, location: { lat: number; lng: number }) {
-    const ride = await this.rideRepo.findByIdAndDriver(rideId, driverId);
-    if (!ride) {
-      throw new Error('Ride not found or not assigned to you');
-    }
-    ride.driverLocation = { lat: location.lat, lng: location.lng, timestamp: new Date() };
-    return this.rideRepo.save(ride);
-  }
+
 }
