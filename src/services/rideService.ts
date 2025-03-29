@@ -1,25 +1,25 @@
-import Ride from '../models/Ride';
+import { RideRepository } from '../repositories/rideRepository';
 import { HttpStatus } from '../utils/enums';
 import { Client } from '@googlemaps/google-maps-services-js';
 
 const mapsClient = new Client({});
 
 export class RideService {
+  private rideRepo = new RideRepository();
+
   async createRide(data: { pickup: string; dropoff: string; passengerId: string }) {
     const { pickup, dropoff, passengerId } = data;
-    const ride = new Ride({
+    const ride = await this.rideRepo.createRide({
       passengerId,
       pickup,
       dropoff,
       status: 'Pending',
     });
-    await ride.save();
     return ride;
   }
 
   async getMyRides(passengerId: string) {
-    const rides = await Ride.find({ passengerId });
-    return rides;
+    return this.rideRepo.findByPassengerId(passengerId);
   }
 
   async getRideRoute(pickup: string, dropoff: string) {
@@ -44,24 +44,22 @@ export class RideService {
   }
 
   async getPendingRides() {
-    const rides = await Ride.find({ status: 'Pending' }).populate('passengerId', 'name email');
-    return rides;
+    return this.rideRepo.findPending();
   }
 
   async getDriverRides(driverId: string) {
-    const rides = await Ride.find({ driverId }).populate('passengerId', 'name email');
-    return rides;
+    return this.rideRepo.findByDriverId(driverId);
   }
 
   async acceptRide(rideId: string, driverId: string) {
-    const ride = await Ride.findById(rideId);
+    const ride = await this.rideRepo.findById(rideId);
     if (!ride) {
       throw new Error('Ride not available');
     }
 
     ride.driverId = driverId;
     ride.status = 'Accepted';
-    await ride.save();
+    await this.rideRepo.save(ride);
     return ride;
   }
 
@@ -71,13 +69,15 @@ export class RideService {
       throw new Error('Invalid status');
     }
 
-    const ride = await Ride.findOne({ _id: rideId, driverId });
+    const ride = await this.rideRepo.findByIdAndDriver(rideId, driverId);
     if (!ride) {
       throw new Error('Ride not found or not assigned to you');
     }
 
     ride.status = status as 'Accepted' | 'In Progress' | 'Completed' | 'Cancelled';
-    await ride.save();
+    await this.rideRepo.save(ride);
     return ride;
   }
+
+  
 }
