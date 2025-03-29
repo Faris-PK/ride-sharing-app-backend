@@ -7,7 +7,7 @@ const rideService = new RideService();
 export const createRide = async (req: Request, res: Response) => {
   try {
     const { pickup, dropoff } = req.body;
-    const passengerId = req.body.user.id; // Changed from req.body.user.id
+    const passengerId = req.body.user.id; 
     const ride = await rideService.createRide({ pickup, dropoff, passengerId });
     const io = req.app.get("io");
     io.emit("ride:created", ride); // Emit to all connected clients
@@ -80,5 +80,19 @@ export const updateRideStatus = async (req: Request, res: Response) => {
     res.status(HttpStatus.OK).json({ message: 'Ride status updated', ride });
   } catch (error) {
     res.status(HttpStatus.SERVER_ERROR).json({ message: 'Error updating ride status', error });
+  }
+};
+
+export const updateDriverLocation = async (req: Request, res: Response) => {
+  try {
+    const { rideId } = req.params;
+    const { lat, lng } = req.body;
+    const driverId = req.body.user.id;
+    const ride = await rideService.updateDriverLocation(rideId, driverId, { lat, lng });
+    const io = req.app.get("io");
+    io.emit("ride:location-updated", { rideId, driverLocation: ride.driverLocation });
+    res.status(HttpStatus.OK).json({ message: 'Location updated', ride });
+  } catch (error) {
+    res.status(HttpStatus.SERVER_ERROR).json({ message: 'Error updating location', error });
   }
 };

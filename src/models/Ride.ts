@@ -6,6 +6,7 @@ export interface IRide extends Document {
   pickup: string;
   dropoff: string;
   status: 'Pending' | 'Accepted' | 'In Progress' | 'Completed' | 'Cancelled';
+  driverLocation?: { lat: number; lng: number; timestamp: Date }; 
 }
 
 const rideSchema: Schema = new Schema({
@@ -17,6 +18,11 @@ const rideSchema: Schema = new Schema({
     type: String,
     enum: ['Pending', 'Accepted', 'In Progress', 'Completed', 'Cancelled'],
     default: 'Pending',
+  },
+  driverLocation: { 
+    lat: { type: Number },
+    lng: { type: Number },
+    timestamp: { type: Date, default: Date.now },
   },
 }, { timestamps: true });
 
